@@ -14,8 +14,27 @@ from odoo.addons.queue_job.fields import JobDecoder, JobEncoder
 
 
 class TestJson(common.TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.demo_partner = cls.env["res.partner"].create({
+            "name": "Demo",
+            "company_id": cls.env.ref("base.main_company").id,
+            "street": "3575  Buena Vista Avenue",
+            "city": "Eugene",
+            "email": "mark.brown24@example.com",
+        })
+        cls.demo_user = cls.env["res.users"].create({
+            "partner_id": cls.demo_partner.id,
+            "login": "demo_user",
+            "password": "demo_user",
+            "company_id": cls.env.ref("base.main_company").id,
+        })
+
     def test_encoder_recordset(self):
-        demo_user = self.env.ref("base.user_demo")
+        demo_user = self.demo_user
         context = demo_user.context_get()
         partner = self.env(user=demo_user, context=context).ref("base.main_partner")
         value = partner
@@ -33,7 +52,7 @@ class TestJson(common.TransactionCase):
         self.assertEqual(json.loads(value_json), expected)
 
     def test_encoder_recordset_list(self):
-        demo_user = self.env.ref("base.user_demo")
+        demo_user = self.demo_user
         context = demo_user.context_get()
         partner = self.env(user=demo_user, context=context).ref("base.main_partner")
         value = ["a", 1, partner]
@@ -55,7 +74,7 @@ class TestJson(common.TransactionCase):
         self.assertEqual(json.loads(value_json), expected)
 
     def test_decoder_recordset(self):
-        demo_user = self.env.ref("base.user_demo")
+        demo_user = self.demo_user
         context = demo_user.context_get()
         partner = self.env(user=demo_user).ref("base.main_partner")
 
@@ -76,7 +95,7 @@ class TestJson(common.TransactionCase):
         self.assertEqual(demo_user, expected.env.user)
 
     def test_decoder_recordset_list(self):
-        demo_user = self.env.ref("base.user_demo")
+        demo_user = self.demo_user
         context = demo_user.context_get()
         partner = self.env(user=demo_user).ref("base.main_partner")
         value_json = json.dumps(
