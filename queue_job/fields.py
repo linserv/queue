@@ -10,7 +10,7 @@ from psycopg2.extras import Json as PsycopgJson
 
 from odoo import fields, models
 from odoo.tools.func import lazy
-
+from odoo.tools.misc import SENTINEL
 
 class JobSerialized(fields.Json):
     """Provide the storage for job fields stored as json
@@ -38,7 +38,7 @@ class JobSerialized(fields.Json):
         ),
     }
 
-    def __init__(self, string=fields.SENTINEL, base_type=fields.SENTINEL, **kwargs):
+    def __init__(self, string=SENTINEL, base_type=SENTINEL, **kwargs):
         super().__init__(string=string, _base_type=base_type, **kwargs)
 
     def _setup_attrs(self, model, name):  # pylint: disable=missing-return
