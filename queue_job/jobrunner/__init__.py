@@ -8,6 +8,7 @@ import time
 
 from odoo.service import server
 from odoo.tools import config
+from odoo.tools import misc
 
 try:
     from odoo.addons.server_environment import serv_config
@@ -17,7 +18,7 @@ try:
     else:
         queue_job_config = {}
 except ImportError:
-    queue_job_config = config.misc.get("queue_job", {})
+    queue_job_config = misc.get("queue_job", {})
 
 
 from .runner import QueueJobRunner, _channels
