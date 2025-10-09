@@ -24,7 +24,7 @@
     ],
     "assets": {
         "web.assets_backend": [
-            "/queue_job/static/src/views/**/*",
+            "queue_job/static/src/views/**/*",
         ],
     },
     "installable": True,

@@ -254,6 +254,7 @@ class JobsTrap:
         if not job.identity_key or all(
             j.identity_key != job.identity_key for j in self.enqueued_jobs
         ):
+            self._prepare_context(job)
             self.enqueued_jobs.append(job)
 
             patcher = mock.patch.object(job, "store")
@@ -271,6 +272,13 @@ class JobsTrap:
             )
         )
         return job
+
+    def _prepare_context(self, job):
+        # pylint: disable=context-overridden
+        job_model = job.job_model.with_context({})
+        field_records = job_model._fields["records"]
+        # Filter the context to simulate store/load of the job
+        job.recordset = field_records.convert_to_write(job.recordset, job_model)
 
     def __enter__(self):
         return self
@@ -413,7 +421,13 @@ class OdooDocTestCase(doctest.DocTestCase, _TestCase):
     """
 
     def __init__(
-        self, doctest, optionflags=0, setUp=None, tearDown=None, checker=None, seq=0
+        self,
+        doctest,
+        optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
+        setUp=None,
+        tearDown=None,
+        checker=None,
+        seq=0,
     ):
         super().__init__(
             doctest._dt_test,

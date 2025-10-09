@@ -32,6 +32,8 @@ class RunJobController(http.Controller):
         job.set_started()
         job.store()
         env.cr.commit()
+        job.lock()
+
         _logger.debug("%s started", job)
 
         job.perform()
@@ -73,7 +75,13 @@ class RunJobController(http.Controller):
             else:
                 break
 
-    @http.route("/queue_job/runjob", type="http", auth="none", save_session=False)
+    @http.route(
+        "/queue_job/runjob",
+        type="http",
+        auth="none",
+        save_session=False,
+        readonly=False,
+    )
     def runjob(self, db, job_uuid, **kw):
         http.request.session.db = db
         env = http.request.env(user=SUPERUSER_ID)
@@ -150,7 +158,9 @@ class RunJobController(http.Controller):
         exception_name = orig_exception.__class__.__name__
         if hasattr(orig_exception, "__module__"):
             exception_name = orig_exception.__module__ + "." + exception_name
-        exc_message = getattr(orig_exception, "name", str(orig_exception))
+        exc_message = (
+            orig_exception.args[0] if orig_exception.args else str(orig_exception)
+        )
         return {
             "exc_info": traceback_txt,
             "exc_name": exception_name,
